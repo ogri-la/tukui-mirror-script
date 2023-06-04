@@ -1,0 +1,10 @@
+tukui
+tukui-dummy
+elvui
+elvui-dummy
+linux-amd64
+linux-amd64.sha256
+/*.json
+/*.zip
+tukui-mirror
+github-token

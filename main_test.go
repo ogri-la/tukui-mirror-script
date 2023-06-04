@@ -54,8 +54,7 @@ func TestMirror(t *testing.T) {
 	script_path, err := os.Getwd()
 
 	panicOnErr(err, "fetching the current working directory")
-	// token := github_token()
-	token := "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"
+	token := github_token()
 
 	app := DummyMirror{}
 	mirror(app, script_path, token)

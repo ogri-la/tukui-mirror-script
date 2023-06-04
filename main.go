@@ -210,12 +210,10 @@ func tag_addon(version string, addon_output_dir string) {
 	run_all(cmd_list, addon_output_dir)
 }
 
-func fetch_repos(script_path string) {
+func fetch_repo(addon Addon, script_path string) {
 	cmd_list := []string{
-		"rm -rf tukui",
-		"git clone ssh://git@github.com/ogri-la/tukui",
-		"rm -rf elvui",
-		"git clone ssh://git@github.com/ogri-la/elvui",
+		fmt.Sprintf("rm -rf '%s'", addon.Slug),
+		"git clone ssh://git@github.com/ogri-la/" + addon.Slug,
 	}
 	run_all(cmd_list, script_path)
 }
@@ -273,9 +271,10 @@ func main() {
 
 	token := github_token()
 
-	fetch_repos(script_path)
-
 	for _, addon := range fetch_addon_list() {
+
+		fetch_repo(addon, script_path)
+
 		// "/path/to/output/dir/elvui/"
 		addon_output_dir, err := filepath.Abs(addon.Slug)
 		panicOnErr(err, "creating an absolute path for addon's output")

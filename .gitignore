@@ -1,6 +1,8 @@
 tukui
+tukui-dummy
 elvui
-*.json
-*.zip
+elvui-dummy
+/*.json
+/*.zip
 tukui-mirror
 github-token

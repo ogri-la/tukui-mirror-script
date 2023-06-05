@@ -1,0 +1,53 @@
+[
+  {
+    "id": -2,
+    "slug": "elvui-dummy",
+    "author": "Elv",
+    "name": "ElvUI",
+    "url": "https://api.tukui.org/v1/download/elvui/e8SZ8iOlvSVTiWn_RMxQjLtQl0-6Ti7aqF-HqN6BQoKEfOJp3LzbYod2UXE0jv5f0JErrdvVWXyUQ1g0eq2SrkQbA2AO8BDlBtkjJ6YcQKMsDrpHglNdIgoebNK8sJQO1D6LeHhfshfl3_0xb_kEmHwpzvdsjP5F6r8gZAGOLbXvB5q9JBVc0oS534yXmTYg5YFP4ueP3hAh3_HqHQw_OtiniSPmU3bUcV-Ou6-KezNGNvu_c7gk917FUddONSC3Fhtuyv4vGOPBDgwMl9cpOR-gXxC4SA3-nuLqproX-gyaNTqCEFIgX4cnAcK8YktAZVzHzDJmIQOmjSFVHgdUpQ",
+    "version": "14.33",
+    "changelog_url": "https://api.tukui.org/v1/changelog/elvui",
+    "ticket_url": "https://github.com/tukui-org/ElvUI/issues",
+    "git_url": "https://github.com/tukui-org/ElvUI",
+    "patch": [
+      "10.1.0",
+      "1.14.3",
+      "3.4.1"
+    ],
+    "last_update": "2023-05-25",
+    "web_url": "https://tukui.org/elvui",
+    "donate_url": "http://tukui.org/support",
+    "small_desc": "A user interface designed around user-friendliness with extra features that are not included in the standard UI.",
+    "screenshot_url": "https://storage.tukui.org/elvui.jpg",
+    "directories": [
+      "ElvUI",
+      "ElvUI_Libraries",
+      "ElvUI_Options"
+    ]
+  },
+  {
+    "id": -1,
+    "slug": "tukui-dummy",
+    "author": "Tukz",
+    "name": "Tukui",
+    "url": "https://api.tukui.org/v1/download/tukui/DXN3vrWYAZGko2_nD9h_tXONiFSO2jcobPCw4NcckM7sD9IPJzCGZgodecZiMsMqKpTcPREWT6BeNZkl1GPpFSWBr90Fmn52Awt9e1ySVICDGa1ircXokbCi_jEOAqH0UwT9sSuvQJ7wO-KP6Cb3-QLPQo-LocqiJcPkU1lIAJjGFrXgmX02MClGm65KKQb_bBBIOi0Glsofu23zE-qH24mO_XZ_kzYMT08Qn5X7ou0KjMwDwuVaMWho84EUh--ocVs1_7hqnZsBn7Vqa8SkTNt1HjjI7BjzgmO-WBWheDOCMWwdxq-dyAchzi1Y-h-vlbrs83dhIEpI95McNPiobg",
+    "version": "20.41",
+    "changelog_url": "https://api.tukui.org/v1/changelog/tukui",
+    "ticket_url": "https://github.com/tukui-org/Tukui/issues",
+    "git_url": "https://github.com/tukui-org/Tukui",
+    "patch": [
+      "10.1.0",
+      "1.14.3",
+      "3.4.1"
+    ],
+    "last_update": "2023-05-08",
+    "web_url": "https://tukui.org/tukui",
+    "donate_url": "http://tukui.org/support",
+    "small_desc": "Minimalistic and lightweight World of Warcraft user interface.",
+    "screenshot_url": "https://storage.tukui.org/tukui.jpg",
+    "directories": [
+      "Tukui"
+    ]
+  }
+]
+

@@ -30,7 +30,6 @@ type Addon struct {
 type IMirror interface {
 	fetch_addon_list() []Addon
 	download_addon(addon Addon, output_path string) string
-	fetch_repo(addon Addon, script_path string)
 }
 
 type TukuiMirror struct {
@@ -70,17 +69,15 @@ func file_exists(path string) bool {
 
 // 10.1.0 => mainline, 1.14.3 => classic, etc
 func patch_to_flavour(patch string) string {
-	prefix := patch[:2] // "1.14.3" => "1."
-	if prefix == "1." {
-		return "classic"
+	entry, present := map[string]string{
+		"1.": "classic",
+		"2.": "classic-tbc",
+		"3.": "classic-wotlk",
+	}[patch[:2]] // "1.14.3" => "1."
+	if !present {
+		return "mainline"
 	}
-	if prefix == "2." {
-		return "classic-tbc"
-	}
-	if prefix == "3." {
-		return "classic-wotlk"
-	}
-	return "mainline"
+	return entry
 }
 
 // 10.1.0 => 100100, 1.14.3 => 11400, etc
@@ -227,7 +224,7 @@ func tag_addon(version string, addon_output_dir string) {
 	run_all_cmd(cmd_list, addon_output_dir)
 }
 
-func (i TukuiMirror) fetch_repo(addon Addon, script_path string) {
+func fetch_repo(addon Addon, script_path string) {
 	cmd_list := []string{
 		fmt.Sprintf("rm -rf %s", addon.Slug),
 		"git clone ssh://git@github.com/ogri-la/" + addon.Slug,
@@ -285,7 +282,7 @@ func github_token() string {
 
 func mirror(app IMirror, script_path string, token string) {
 	for _, addon := range app.fetch_addon_list() {
-		app.fetch_repo(addon, script_path)
+		fetch_repo(addon, script_path)
 
 		// "/path/to/output/dir/elvui/"
 		addon_output_dir, err := filepath.Abs(addon.Slug)

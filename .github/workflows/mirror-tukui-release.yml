@@ -16,4 +16,4 @@ jobs:
                 name: execute
                 env:
                     token: ${{ secrets.TUKUI_MIRROR_RELEASE_TOKEN }}
-                run: GITHUB_TOKEN=$token ./tukui-mirror2
+                run: GITHUB_TOKEN=$token ./tukui-mirror

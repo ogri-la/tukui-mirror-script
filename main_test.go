@@ -12,8 +12,6 @@ import (
 	"github.com/google/go-github/v52/github"
 
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type DummyMirror struct {
@@ -62,10 +60,6 @@ func (app DummyMirror2) download_addon(addon Addon, output_path string) string {
 	return _download_addon(addon, output_path)
 }
 
-func reset_dummy_repositories(script_path string) {
-	run_all_cmd([]string{}, script_path)
-}
-
 func reset(script_path, token string) {
 	addon_list := []Addon{
 		Addon{Slug: "tukui-dummy"},
@@ -112,5 +106,4 @@ func TestMirror(t *testing.T) {
 	release_two := DummyMirror2{}
 	mirror(release_two, script_path, token)
 
-	assert.True(t, true)
 }

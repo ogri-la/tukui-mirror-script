@@ -1,0 +1,19 @@
+name: mirror-tukui-release
+on:
+    schedule:
+        # run once an hour
+        - cron: "0 * * * *"
+jobs:
+    download-binary:
+        runs-on: ubuntu-latest
+        steps:
+            -
+                name: download
+                run: |
+                    wget https://github.com/ogri-la/tukui-mirror-script/releases/download/latest/linux-amd64 --output-document tukui-mirror
+                    chmod +x tukui-mirror
+            -
+                name: execute
+                env:
+                    token: ${{ secrets.TUKUI_MIRROR_RELEASE_TOKEN }}
+                run: GITHUB_TOKEN=$token ./tukui-mirror2

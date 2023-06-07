@@ -141,7 +141,11 @@ func run_all_cmd(command_list []string, cwd string) {
 
 func (i TukuiMirror) fetch_addon_list() []Addon {
 	url := "https://api.tukui.org/v1/addons"
-	resp, err := http.Get(url)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", "tukui-mirror-script/1.x (https://github.com/ogri-la/tukui-mirror-script)")
+	panicOnErr(err, "composing request to fetch addon list")
+	resp, err := client.Do(req)
 	panicOnErr(err, "fetching addon list")
 	defer resp.Body.Close()
 

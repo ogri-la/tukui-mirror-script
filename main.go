@@ -143,17 +143,15 @@ func (i TukuiMirror) fetch_addon_list() []Addon {
 	url := "https://api.tukui.org/v1/addons"
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
-	req.Header.Set("User-Agent", "tukui-mirror-script/1.x (https://github.com/ogri-la/tukui-mirror-script)")
 	panicOnErr(err, "composing request to fetch addon list")
+	req.Header.Set("User-Agent", "tukui-mirror-script/1.x (https://github.com/ogri-la/tukui-mirror-script)")
 	resp, err := client.Do(req)
 	panicOnErr(err, "fetching addon list")
 	defer resp.Body.Close()
 
 	body_bytes, err := ioutil.ReadAll(resp.Body)
 	panicOnErr(err, "reading response body into a byte array")
-
 	ensure(resp.StatusCode == 200, fmt.Sprintf("non-200 response fetching addon list (%d): %s", resp.StatusCode, string(body_bytes)))
-
 	addon_list := []Addon{}
 	err = json.Unmarshal(body_bytes, &addon_list)
 	panicOnErr(err, "deserialising response bytes into a list of addon structs")
@@ -161,7 +159,8 @@ func (i TukuiMirror) fetch_addon_list() []Addon {
 	return addon_list
 }
 
-// downloads zip file at `url` to file, returning the output path and panicking on any errors.
+// downloads zip file at `url` to a destination within `output_path`,
+// returning the final output path.
 func (app TukuiMirror) download_addon(addon Addon, output_path string) string {
 	// "elvui--13.33.zip", "tukui--20.37.zip"
 	addon_filename := fmt.Sprintf("%s--%s.zip", addon.Slug, addon.Version)
@@ -172,7 +171,6 @@ func (app TukuiMirror) download_addon(addon Addon, output_path string) string {
 		return zip_output_path
 	}
 	stderr("downloading: " + addon.Url)
-
 	resp, err := http.Get(addon.Url)
 	panicOnErr(err, "downloading addon to file")
 	defer resp.Body.Close()
@@ -186,7 +184,8 @@ func (app TukuiMirror) download_addon(addon Addon, output_path string) string {
 	return zip_output_path
 }
 
-func gen_release_json(addon Addon, addon_output_path string, zip_output_filename string) string {
+// creates a 'release.json' JSON string for the given `addon`.
+func gen_release_json(addon Addon, zip_output_filename string) string {
 	release_json := `{
     "releases": [
         {
@@ -205,7 +204,6 @@ func gen_release_json(addon Addon, addon_output_path string, zip_output_filename
                     "flavor": "%s",
                     "interface": %d
                 }`
-
 	metadata := []string{}
 	for _, patch := range addon.PatchList {
 		flavour := patch_to_flavour(patch) // 10.1.0 => mainline, 1.13.3 => classic
@@ -216,6 +214,8 @@ func gen_release_json(addon Addon, addon_output_path string, zip_output_filename
 	return fmt.Sprintf(release_json, addon.Name, addon.Version, zip_output_filename, metadata_json)
 }
 
+// writes a 'release.json' JSON string `release_json` to `addon_output_dir`,
+// returning the final output path.
 func write_release_json(release_json string, addon_output_dir string) string {
 	release_json_output_path := filepath.Join(addon_output_dir, "release.json")
 	err := os.WriteFile(release_json_output_path, []byte(release_json), os.FileMode(int(0644)))
@@ -224,6 +224,8 @@ func write_release_json(release_json string, addon_output_dir string) string {
 	return release_json_output_path
 }
 
+// returns the most recent tag of the addon's git repository at
+// `addon_output_dir` to be compared against the version returned by the API.
 func fetch_addon_version(addon_output_dir string) string {
 	rc, _stdout, _stderr := run_cmd("git describe --tags --abbrev=0", addon_output_dir)
 	if rc != 0 {
@@ -236,6 +238,7 @@ func fetch_addon_version(addon_output_dir string) string {
 	return _stdout
 }
 
+// tags the addon's git repository at `addon_output_dir` with `version`.
 func tag_addon(version string, addon_output_dir string) {
 	cmd_list := []string{
 		fmt.Sprintf("git commit -m %s --allow-empty", version),
@@ -246,6 +249,8 @@ func tag_addon(version string, addon_output_dir string) {
 	run_all_cmd(cmd_list, addon_output_dir)
 }
 
+// resets the git repository for the given `addon` by deleting and re-cloning it.
+// ensures no errant tags or weird repository state are present.
 func fetch_repo(addon Addon, script_path string) {
 	cmd_list := []string{
 		fmt.Sprintf("rm -rf %s", addon.Slug),
@@ -255,14 +260,12 @@ func fetch_repo(addon Addon, script_path string) {
 }
 
 func guess_media_type(path string) string {
-	ext := strings.ToLower(filepath.Ext(path))
-	if ext == ".zip" {
-		return "application/zip"
-	}
-	if ext == ".json" {
-		return "application/json"
-	}
-	panic("failed to guess mime for given path: " + path)
+	mime, present := map[string]string{
+		".zip":  "application/zip",
+		".json": "application/json",
+	}[strings.ToLower(filepath.Ext(path))]
+	ensure(present, "failed to guess mime for given path: "+path)
+	return mime
 }
 
 func create_tag_release(addon Addon, token string, asset_list []string) {
@@ -280,7 +283,6 @@ func create_tag_release(addon Addon, token string, asset_list []string) {
 	}
 	release_result, _, err := client.Repositories.CreateRelease(ctx, "ogri-la", addon.Slug, &release)
 	panicOnErr(err, "creating a Github release")
-
 	for _, asset_path := range asset_list {
 		upload_opts := github.UploadOptions{
 			Name:      filepath.Base(asset_path),
@@ -288,21 +290,22 @@ func create_tag_release(addon Addon, token string, asset_list []string) {
 			MediaType: guess_media_type(asset_path),
 		}
 		fh, err := os.Open(asset_path)
-		panicOnErr(err, "opening asset")
+		panicOnErr(err, "opening asset: "+asset_path)
 		_, _, err = client.Repositories.UploadReleaseAsset(ctx, "ogri-la", addon.Slug, release_result.GetID(), &upload_opts, fh)
-		panicOnErr(err, "uploading asset")
+		panicOnErr(err, "uploading asset: "+asset_path)
 	}
 }
 
-// pulls a Github personal access token (PAT) out of an envvar `GITHUB_TOKEN`
-// panics if token does not exist.
+// pulls a Github personal access token (PAT) out of an envvar `GITHUB_TOKEN`.
 func github_token() string {
 	token, present := os.LookupEnv("GITHUB_TOKEN")
 	ensure(present, "envvar GITHUB_TOKEN not set.")
 	return token
 }
 
-func mirror(app IMirror, script_path string, token string) {
+func mirror(app IMirror, token string) {
+	script_path, err := os.Getwd()
+	panicOnErr(err, "fetching the current working directory")
 	for _, addon := range app.fetch_addon_list() {
 		fetch_repo(addon, script_path)
 
@@ -320,7 +323,7 @@ func mirror(app IMirror, script_path string, token string) {
 		zip_output_path := app.download_addon(addon, addon_output_dir)
 
 		zip_output_filename := filepath.Base(zip_output_path) // "elvui--3.33.zip"
-		release_json := gen_release_json(addon, addon_output_dir, zip_output_filename)
+		release_json := gen_release_json(addon, zip_output_filename)
 		release_json_path := write_release_json(release_json, addon_output_dir)
 
 		tag_addon(addon.Version, addon_output_dir)
@@ -329,7 +332,5 @@ func mirror(app IMirror, script_path string, token string) {
 }
 
 func main() {
-	script_path, err := os.Getwd()
-	panicOnErr(err, "fetching the current working directory")
-	mirror(TukuiMirror{}, script_path, github_token())
+	mirror(TukuiMirror{}, github_token())
 }

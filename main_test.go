@@ -56,7 +56,6 @@ func (i DummyMirror2) fetch_addon_list() []Addon {
 	return _fetch_addon_list("testdata/api-resp2.json")
 }
 
-// downloads zip file at `url` to file, returning the output path and panicking on any errors.
 func _download_addon(addon Addon, output_path string) string {
 	if addon.Slug == "tukui-dummy" {
 		return "testdata/tukui-dummy.zip"
@@ -77,7 +76,9 @@ func (app DummyMirror2) download_addon(addon Addon, output_path string) string {
 	return _download_addon(addon, output_path)
 }
 
-func reset(script_path, token string) {
+func reset(token string) {
+	script_path, err := os.Getwd()
+	panicOnErr(err, "fetching the current working directory")
 	addon_list := []Addon{
 		Addon{Slug: "tukui-dummy"},
 		Addon{Slug: "elvui-dummy"},
@@ -91,7 +92,6 @@ func reset(script_path, token string) {
 		)
 		tc := oauth2.NewClient(ctx, ts)
 		client := github.NewClient(tc)
-
 		// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#delete-a-release
 		opts := github.ListOptions{}
 		release_list, _, _ := client.Repositories.ListReleases(ctx, "ogri-la", addon.Slug, &opts)
@@ -111,16 +111,13 @@ func reset(script_path, token string) {
 }
 
 func TestMirror(t *testing.T) {
-	script_path, err := os.Getwd()
-	panicOnErr(err, "fetching the current working directory")
 	token := github_token()
 
-	reset(script_path, token)
+	reset(token)
 
 	release_one := DummyMirror{}
-	mirror(release_one, script_path, token)
+	mirror(release_one, token)
 
 	release_two := DummyMirror2{}
-	mirror(release_two, script_path, token)
-
+	mirror(release_two, token)
 }

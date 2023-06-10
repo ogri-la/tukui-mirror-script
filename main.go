@@ -88,8 +88,8 @@ func file_exists(path string) bool {
 func patch_to_flavour(patch string) string {
 	entry, present := map[string]string{
 		"1.": "classic",
-		"2.": "classic-tbc",
-		"3.": "classic-wotlk",
+		"2.": "bcc",
+		"3.": "wrath",
 	}[patch[:2]] // "1.14.3" => "1."
 	if !present {
 		return "mainline"

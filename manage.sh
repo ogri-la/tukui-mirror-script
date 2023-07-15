@@ -9,6 +9,7 @@ if test ! "$cmd"; then
     echo "available commands:"
     echo "  build        build project"
     echo "  release      build project for distribution"
+    echo "  test         run project tests"
     echo "  update-deps  update project dependencies"
     exit 1
 fi
@@ -37,7 +38,7 @@ elif test "$cmd" = "release"; then
         -v \
         -o linux-amd64
     sha256sum linux-amd64 > linux-amd64.sha256
-    echo ---
+    echo "---"
     echo "wrote linux-amd64"
     echo "wrote linux-amd64.sha256"
     exit 0
@@ -47,6 +48,14 @@ elif test "$cmd" = "update-deps"; then
     go get -u
     go mod tidy
     ./manage.sh build
+    exit 0
+
+elif test "$cmd" = "test"; then
+    if [ -z "$GITHUB_TOKEN" ]; then
+        echo "failed. command 'test' requires GITHUB_TOKEN to be set."
+        exit 1
+    fi
+    go test
     exit 0
 
 # ...

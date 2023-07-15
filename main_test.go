@@ -105,7 +105,7 @@ func reset(token string) {
 			"tukui-dummy": "b0492cc",
 			"elvui-dummy": "dc06d5f",
 		}[addon.Slug]
-		rc, so, se := run_cmd(fmt.Sprintf("reset-dummy-repo.sh %s %s", addon.Slug, revision), script_path)
+		rc, so, se := run_cmd(fmt.Sprintf("./reset-dummy-repo.sh %s %s", addon.Slug, revision), script_path)
 		ensure(rc == 0, "failed to reset dummy repo: "+so+se)
 	}
 }

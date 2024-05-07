@@ -21,7 +21,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"golang.org/x/oauth2"
@@ -40,7 +39,7 @@ type DummyMirror2 struct {
 }
 
 func _fetch_addon_list(fixture_path string) []Addon {
-	fixture, err := ioutil.ReadFile(fixture_path)
+	fixture, err := os.ReadFile(fixture_path)
 	panicOnErr(err, "loading test fixture")
 	var addon_list []Addon
 	err = json.Unmarshal(fixture, &addon_list)
@@ -80,8 +79,8 @@ func reset(token string) {
 	script_path, err := os.Getwd()
 	panicOnErr(err, "fetching the current working directory")
 	addon_list := []Addon{
-		Addon{Slug: "tukui-dummy"},
-		Addon{Slug: "elvui-dummy"},
+		{Slug: "tukui-dummy"},
+		{Slug: "elvui-dummy"},
 	}
 	for _, addon := range addon_list {
 		// delete any Github releases.
@@ -101,7 +100,7 @@ func reset(token string) {
 		}
 
 		// reset remote repository to initial commit, delete any local and remote tags
-		revision, _ := map[string]string{
+		revision := map[string]string{
 			"tukui-dummy": "b0492cc",
 			"elvui-dummy": "dc06d5f",
 		}[addon.Slug]

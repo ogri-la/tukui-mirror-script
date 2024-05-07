@@ -22,7 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -90,6 +90,7 @@ func patch_to_flavour(patch string) string {
 		"1.": "classic",
 		"2.": "bcc",
 		"3.": "wrath",
+		"4.": "cata",
 	}[patch[:2]] // "1.14.3" => "1."
 	if !present {
 		return "mainline"
@@ -149,7 +150,7 @@ func (i TukuiMirror) fetch_addon_list() []Addon {
 	panicOnErr(err, "fetching addon list")
 	defer resp.Body.Close()
 
-	body_bytes, err := ioutil.ReadAll(resp.Body)
+	body_bytes, err := io.ReadAll(resp.Body)
 	panicOnErr(err, "reading response body into a byte array")
 	ensure(resp.StatusCode == 200, fmt.Sprintf("non-200 response fetching addon list (%d): %s", resp.StatusCode, string(body_bytes)))
 	addon_list := []Addon{}
@@ -176,9 +177,9 @@ func (app TukuiMirror) download_addon(addon Addon, output_path string) string {
 	defer resp.Body.Close()
 	ensure(resp.StatusCode == 200, "non-200 response downloading zip file")
 
-	zip_bytes, err := ioutil.ReadAll(resp.Body)
+	zip_bytes, err := io.ReadAll(resp.Body)
 	panicOnErr(err, "reading bytes from response body")
-	err = ioutil.WriteFile(zip_output_path, zip_bytes, os.FileMode(int(0644)))
+	err = os.WriteFile(zip_output_path, zip_bytes, os.FileMode(int(0644)))
 	panicOnErr(err, "writing bytes to zip file")
 	stderr("wrote: " + zip_output_path)
 	return zip_output_path

@@ -8,3 +8,4 @@ linux-amd64.sha256
 /*.zip
 tukui-mirror
 github-token
+linux-*
